@@ -34,22 +34,22 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Calculator() {
     var currentNumber by remember { mutableStateOf("") }
-    var operator by remember { mutableStateOf("") }
 
     fun calculate() {
-        val expression = currentNumber.split("\\d+".toRegex())
-        val numbers = currentNumber.split("\\D+".toRegex()).mapNotNull { it.toDoubleOrNull() }
+        // Match any number and operator in the input string
+        val regex = """(\d+\.?\d*)([+\-*/])(\d+\.?\d*)""".toRegex()
+        val matchResult = regex.matchEntire(currentNumber)
 
-        if (numbers.size >= 2 && expression.isNotEmpty()) {
-            val num1 = numbers[0]
-            val num2 = numbers[1]
-            val op = expression[0]
+        if (matchResult != null) {
+            val (num1, op, num2) = matchResult.destructured
+            val number1 = num1.toDouble()
+            val number2 = num2.toDouble()
 
             val result = when (op) {
-                "+" -> num1 + num2
-                "-" -> num1 - num2
-                "*" -> num1 * num2
-                "/" -> if (num2 != 0.0) num1 / num2 else Double.NaN
+                "+" -> number1 + number2
+                "-" -> number1 - number2
+                "*" -> number1 * number2
+                "/" -> if (number2 != 0.0) number1 / number2 else Double.NaN
                 else -> Double.NaN
             }
 
@@ -76,7 +76,9 @@ fun Calculator() {
 
         // Number Buttons
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             for (i in 0..9) {
@@ -86,22 +88,26 @@ fun Calculator() {
 
         // Operator Buttons
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = { operator = "+"; currentNumber += "+" }) { Text("+") }
-            Button(onClick = { operator = "-"; currentNumber += "-" }) { Text("-") }
-            Button(onClick = { operator = "*"; currentNumber += "*" }) { Text("x") }
-            Button(onClick = { operator = "/"; currentNumber += "/" }) { Text("/") }
+            Button(onClick = { currentNumber += "+" }) { Text("+") }
+            Button(onClick = { currentNumber += "-" }) { Text("-") }
+            Button(onClick = { currentNumber += "*" }) { Text("x") }
+            Button(onClick = { currentNumber += "/" }) { Text("/") }
         }
 
         // Calculate and Clear Buttons
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(onClick = { calculate() }) { Text("=") }
-            Button(onClick = { currentNumber = ""; operator = "" }) { Text("C") }
+            Button(onClick = { currentNumber = "" }) { Text("C") }
         }
     }
 }
